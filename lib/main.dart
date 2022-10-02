@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:intrinsic_dimension/intrinsic_dimension.dart';
+
 void main() => runApp(const AppBarApp());
 
 class AppBarApp extends StatelessWidget {
@@ -24,45 +26,61 @@ class _SliverAppBarExampleState extends State<SliverAppBarExample> {
   bool _pinned = true;
   bool _snap = false;
   bool _floating = false;
+  double _appBarExpandedHeight = 0;
 
 // [SliverAppBar]s are typically used in [CustomScrollView.slivers], which in
 // turn can be placed in a [Scaffold.body].
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            pinned: _pinned,
-            snap: _snap,
-            floating: _floating,
-            expandedHeight: 160.0,
-            flexibleSpace: const FlexibleSpaceBar(
-              title: Text('SliverAppBar'),
-              background: FlutterLogo(),
+      body: Stack(
+        children: [
+          IntrinsicDimension(
+            listener: (_, __, height, ___) {
+              setState(() {
+                _appBarExpandedHeight = height;
+              });
+            },
+            builder: (_, __, ___, ____) => const Opacity(
+              opacity: 0,
+              child: FlutterLogo(size: 180),
             ),
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(
-              height: 20,
-              child: Center(
-                child: Text('Scroll to see the SliverAppBar in effect.'),
+          CustomScrollView(
+            slivers: <Widget>[
+              SliverAppBar(
+                pinned: _pinned,
+                snap: _snap,
+                floating: _floating,
+                expandedHeight: _appBarExpandedHeight,
+                flexibleSpace: const FlexibleSpaceBar(
+                  title: Text('SliverAppBar'),
+                  background: FlutterLogo(size: 180),
+                ),
               ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return Container(
-                  color: index.isOdd ? Colors.white : Colors.black12,
-                  height: 100.0,
+              const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 20,
                   child: Center(
-                    child: Text('$index', textScaleFactor: 5),
+                    child: Text('Scroll to see the SliverAppBar in effect.'),
                   ),
-                );
-              },
-              childCount: 20,
-            ),
+                ),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    return Container(
+                      color: index.isOdd ? Colors.white : Colors.black12,
+                      height: 100.0,
+                      child: Center(
+                        child: Text('$index', textScaleFactor: 5),
+                      ),
+                    );
+                  },
+                  childCount: 20,
+                ),
+              ),
+            ],
           ),
         ],
       ),
